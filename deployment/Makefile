@@ -2,9 +2,7 @@
 
 # Variables
 SCRIPT := crs-architecture.sh
-GENERATED_FILES := k8s/base/tailscale-coredns/coredns-custom.yaml \
-		   k8s/base/tailscale-operator/operator.yaml \
-		   k8s/values-aks.yaml
+GENERATED_FILES := k8s/values-aks.yaml
 
 # Default target when just running `make`
 .PHONY: help

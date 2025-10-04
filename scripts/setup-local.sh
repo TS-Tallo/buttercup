@@ -19,7 +19,7 @@ setup_config() {
     setup_config_file
 
     # Generate a secure master key for LiteLLM
-    generate_litellm_master_key
+    # LiteLLM is now external, no master key generation needed
 
     # Generate key ID/token for CRS
     generate_crs_key_id_token
@@ -101,4 +101,4 @@ main() {
 }
 
 # Run main function
-main "$@" 
+main "$@"

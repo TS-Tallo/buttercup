@@ -565,22 +565,7 @@ configure_local_api_keys() {
     print_success "API keys configured successfully"
 }
 
-generate_litellm_master_key() {
-    # If LITELLM_MASTER_KEY is already configured, skip key generation
-    if [ -f "deployment/env" ]; then
-        source deployment/env
-    fi
-    if [ "${LITELLM_MASTER_KEY:-}" != "" ] && [ "$LITELLM_MASTER_KEY" != "d5179c62ae1c7366e3ee09775d0993d5" ]; then
-        print_status "LITELLM_MASTER_KEY is already configured, skipping LiteLLM master key generation."
-        return 0
-    fi
 
-    print_linebreak
-    print_status "Configuring LiteLLM master key..."
-    local litellm_master_key=$(openssl rand -hex 16)
-    portable_sed "s|.*export LITELLM_MASTER_KEY=.*|export LITELLM_MASTER_KEY=\"$litellm_master_key\"|" deployment/env
-    print_success "LiteLLM master key configured successfully"
-}
 
 generate_crs_key_id_token() {
     # If CRS_KEY_ID is already configured, skip key generation
@@ -717,21 +702,7 @@ check_aks_config() {
         fi
     done
     
-    # Check Tailscale (optional but recommended)
-    if [ "$TAILSCALE_ENABLED" = "true" ]; then
-        local tailscale_vars=(
-            "TS_CLIENT_ID"
-            "TS_CLIENT_SECRET"
-            "TS_OP_TAG"
-        )
-        
-        for var in "${tailscale_vars[@]}"; do
-            if [ -z "${!var}" ] || [ "${!var}" = "<your-*>" ]; then
-                print_error "Tailscale variable $var is not set or has placeholder value"
-                errors=$((errors + 1))
-            fi
-        done
-    fi
+
     
     # Check optional LangFuse configuration
     if [ "$LANGFUSE_ENABLED" = "true" ]; then

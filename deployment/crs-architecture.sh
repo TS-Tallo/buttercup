@@ -26,10 +26,7 @@ if [ "$(echo "$TAILSCALE_ENABLED" | tr '[:upper:]' '[:lower:]')" = "true" ]; the
 else
 	unset TAILSCALE_ENABLED
 fi
-if [ "$TAILSCALE_ENABLED" = "true" ]; then
-	envsubst <k8s/base/tailscale-operator/operator.template >k8s/base/tailscale-operator/operator.yaml
-	envsubst <k8s/base/tailscale-connections/proxies.template >k8s/base/tailscale-connections/proxies.yaml
-fi
+
 if [ "$(echo "$LANGFUSE_ENABLED" | tr '[:upper:]' '[:lower:]')" = "true" ]; then
 	LANGFUSE_ENABLED="true"
 else
@@ -192,19 +189,6 @@ fi
 	rm -f /tmp/registry-cache.key /tmp/registry-cache.crt
 
 	#deploy kubernetes resources in AKS cluster
-	if [ "$TAILSCALE_ENABLED" = "true" ]; then
-		kubectl apply -k k8s/base/tailscale-operator/
-		kubectl apply -k k8s/base/tailscale-dns/
-
-		echo -e "${BLU}Waiting for the service nameserver to exist${NC}"
-		timeout 5m bash -c "until kubectl get svc -n tailscale nameserver > /dev/null 2>&1; do sleep 1; done" || echo -e "${RED}Error: nameserver failed to exist within 5 minutes${NC}"
-		echo -e "${BLU}Waiting for nameserver to have a valid ClusterIP${NC}"
-		timeout 5m bash -c "until kubectl get svc -n tailscale nameserver -o jsonpath='{.spec.clusterIP}' | grep -v '<none>' > /dev/null 2>&1; do sleep 1; done" || echo -e "${RED}Error: nameserver failed to obtain a valid CLusterIP within 5 minutes${NC}"
-		TS_DNS_IP=$(kubectl get svc -n tailscale nameserver -o jsonpath='{.spec.clusterIP}')
-		envsubst <k8s/base/tailscale-coredns/coredns-custom.template >k8s/base/tailscale-coredns/coredns-custom.yaml
-
-		kubectl apply -k k8s/base/tailscale-coredns/
-	fi
 
 	# Install buttercup CRS
 	echo -e "${BLU}Installing buttercup CRS${NC}"
@@ -214,13 +198,7 @@ fi
 	helm upgrade --install buttercup --namespace "$BUTTERCUP_NAMESPACE" ./k8s -f ./k8s/values-overrides.crs-architecture.yaml --create-namespace
 	umask 022 # Reset umask to default value
 
-	if [ "$TAILSCALE_ENABLED" = "true" ]; then
-		kubectl apply -k k8s/base/tailscale-connections/
-		echo -e "${BLU}Waiting for ingress hostname DNS registration${NC}"
-		timeout 5m bash -c "until kubectl get ingress -n "$BUTTERCUP_NAMESPACE" buttercup-task-server -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' | grep -q '.'; do sleep 1; done" || echo -e "${BLU}Error: Ingress hostname failed to be to set within 5 minutes${NC}"
-		INGRESS_HOSTNAME=$(kubectl get ingress -n "$BUTTERCUP_NAMESPACE" buttercup-task-server -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
-		echo -e "${GRN}Your ingress DNS hostname is $INGRESS_HOSTNAME${NC}"
-	fi
+
 
 	echo -e "${GRN}Buttercup CRS installation complete${NC}"
 }
@@ -263,14 +241,10 @@ down-k8s() {
 	fi
 	echo -e "${BLU}Deleting Kubernetes resource${NC}"
 	set -x
-	kubectl delete -k k8s/base/tailscale-connections/
 	helm uninstall --wait --namespace "$BUTTERCUP_NAMESPACE" buttercup
 	# Remove finalizers from clickhouse installation as stated in https://signoz.io/docs/operate/kubernetes/#uninstall-signoz
 	# Without this, the namespace would not be deleted
 	kubectl -n "$BUTTERCUP_NAMESPACE" patch clickhouseinstallations.clickhouse.altinity.com/buttercup-clickhouse -p '{"metadata":{"finalizers":[]}}' --type=merge
-	kubectl delete -k k8s/base/tailscale-coredns/
-	kubectl delete -k k8s/base/tailscale-dns/
-	kubectl delete -k k8s/base/tailscale-operator/
 	kubectl delete secret ghcr --namespace "$BUTTERCUP_NAMESPACE"
 	kubectl delete namespace "$BUTTERCUP_NAMESPACE"
 	set +x

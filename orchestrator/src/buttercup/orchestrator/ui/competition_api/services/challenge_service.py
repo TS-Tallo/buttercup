@@ -85,7 +85,7 @@ class ChallengeService:
                 clone_url = repo_url
 
             result = subprocess.run(
-                ["git", "clone", clone_url, sub_path],
+                ["git", "clone", "--depth=1", clone_url, sub_path],
                 capture_output=True,
                 text=True,
                 check=True,

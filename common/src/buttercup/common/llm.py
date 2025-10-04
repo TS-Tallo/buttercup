@@ -17,24 +17,9 @@ logger = logging.getLogger(__name__)
 class ButtercupLLM(Enum):
     """Enum for LLM models available in LiteLLM."""
 
-    AZURE_GPT_4O = "azure-gpt-4o"
-    AZURE_GPT_4O_MINI = "azure-gpt-4o-mini"
-    AZURE_O3_MINI = "azure-o3-mini"
-    AZURE_O1 = "azure-o1"
-    OPENAI_GPT_4O = "openai-gpt-4o"
-    OPENAI_GPT_4O_MINI = "openai-gpt-4o-mini"
-    OPENAI_O3_MINI = "openai-o3-mini"
-    OPENAI_O3 = "openai-o3"
-    OPENAI_O1 = "openai-o1"
-    OPENAI_GPT_4_1_NANO = "openai-gpt-4.1-nano"
-    OPENAI_GPT_4_1_MINI = "openai-gpt-4.1-mini"
-    OPENAI_GPT_4_1 = "openai-gpt-4.1"
-    CLAUDE_3_5_SONNET = "claude-3.5-sonnet"
-    CLAUDE_3_7_SONNET = "claude-3.7-sonnet"
-    CLAUDE_4_SONNET = "claude-4-sonnet"
-    GEMINI_PRO = "gemini-pro"
-    GEMINI_2_5_FLASH = "gemini-2.5-flash"
-    GEMINI_2_5_FLASH_EXP = "gemini-2.5-flash-exp"
+    # Configurable models from environment variables
+    BIG_MODEL = os.getenv("BIG_MODEL", "xai/grok-4-fast-reasoning")
+    SMALL_MODEL = os.getenv("SMALL_MODEL", "xai/grok-code-fast")
 
 
 @functools.cache
@@ -102,7 +87,7 @@ def create_default_llm(**kwargs: Any) -> Runnable:
     fallback_models = kwargs.pop("fallback_models", [])
     fallback_models = [create_default_llm(**{**kwargs, "model_name": m.value}) for m in fallback_models]
     return create_llm(
-        model_name=kwargs.pop("model_name", ButtercupLLM.OPENAI_GPT_4_1.value),
+        model_name=kwargs.pop("model_name", ButtercupLLM.BIG_MODEL.value),
         temperature=kwargs.pop("temperature", 0.1),
         timeout=420.0,
         max_retries=3,
@@ -118,7 +103,7 @@ def create_default_llm_with_temperature(**kwargs: Any) -> Runnable:
     ]
     return (
         create_llm(
-            model_name=kwargs.pop("model_name", ButtercupLLM.OPENAI_GPT_4_1.value),
+            model_name=kwargs.pop("model_name", ButtercupLLM.BIG_MODEL.value),
             temperature=kwargs.pop("temperature", 0.1),
             timeout=420.0,
             max_retries=3,

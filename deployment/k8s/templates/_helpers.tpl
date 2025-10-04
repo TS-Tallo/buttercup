@@ -31,30 +31,7 @@ Define the Redis init container template that can be included in multiple deploy
   command: ['sh', '-c', 'until nc -z {{ .Release.Name }}-redis-master 6379; do echo waiting for redis; sleep 2; done;']
 {{- end -}}
 
-{{/*
-Define the LiteLLM health check init container template with secret passed via volume
-*/}}
-{{- define "buttercup.waitForLiteLLM" -}}
-- name: wait-for-litellm
-  image: curlimages/curl:8.6.0
-  command:
-    - sh
-    - -c
-    - |
-      for i in $(seq 1 60); do
-        if curl --silent -f -H "Authorization: Bearer $(cat /etc/secrets/API_KEY)" -X POST http://{{ .Release.Name }}-litellm:4000/key/health; then
-          exit 0
-        fi
-        echo "waiting for litellm and key to be ready..."
-        sleep 2
-      done
-      echo "litellm or key not ready after 120s"
-      exit 1
-  volumeMounts:
-    - name: api-key-secret
-      mountPath: /etc/secrets
-      readOnly: true
-{{- end -}}
+
 
 {{/*
 Define a health check command that works with signal_alive_health_check() function

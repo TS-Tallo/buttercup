@@ -130,15 +130,14 @@ class RootCauseAgent(PatcherAgentBase):
             "max_tokens": 20000,
         }
         default_llm = create_default_llm_with_temperature(
-            model_name=ButtercupLLM.OPENAI_GPT_4_1.value,
+            model_name=ButtercupLLM.BIG_MODEL.value,
             **kwargs,
         )
         fallback_llms = [
             create_default_llm_with_temperature(
-                model_name=m.value,
+                model_name=ButtercupLLM.SMALL_MODEL.value,
                 **kwargs,
             )
-            for m in [ButtercupLLM.CLAUDE_3_7_SONNET, ButtercupLLM.GEMINI_PRO]
         ]
         self.llm = default_llm.with_fallbacks(fallback_llms)
 

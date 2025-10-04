@@ -94,12 +94,9 @@ class Task:
 
     def __post_init__(self) -> None:
         fallbacks = [
-            ButtercupLLM.CLAUDE_3_7_SONNET,
-            ButtercupLLM.CLAUDE_3_5_SONNET,
-            ButtercupLLM.OPENAI_GPT_4_1,
-            ButtercupLLM.GEMINI_PRO,
+            ButtercupLLM.SMALL_MODEL,
         ]
-        self.llm = Task.get_llm(ButtercupLLM.CLAUDE_4_SONNET, fallbacks)
+        self.llm = Task.get_llm(ButtercupLLM.BIG_MODEL, fallbacks)
         self.tools = [
             get_function_definition,
             get_type_definition,

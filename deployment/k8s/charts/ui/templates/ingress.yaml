@@ -3,14 +3,7 @@ kind: Ingress
 apiVersion: networking.k8s.io/v1
 metadata:
   name: {{ .Release.Name }}-ui
-  annotations:
-    tailscale.com/hostname: "{{ default (printf "%s-ui" .Release.Name) }}"
-    tailscale.com/experimental-forward-cluster-traffic-via-ingress: "true"
 spec:
-  ingressClassName: tailscale
-  tls:
-    - hosts:
-      - "{{ default (printf "%s-ui" .Release.Name) }}"
   rules:
     - http:
         paths:

@@ -1,6 +1,6 @@
 include:
- - ../../competition-server/compose.yaml
- - ../../competition-server/signoz/compose.yaml
+  # - ../../competition-server/compose.yaml
+  - ../../competition-server/signoz/compose.yaml
 
 services:
   # ugh the only solution i can come up with is a dind instance paired with every single build-bot we will need like k8s groups or something
@@ -252,8 +252,6 @@ services:
     depends_on:
       redis:
         condition: service_healthy
-      litellm:
-        condition: service_started
       dind:
         condition: service_started
 
@@ -276,36 +274,6 @@ services:
       dind:
         condition: service_started
 
-  litellm:
-    image: ghcr.io/berriai/litellm:litellm_stable_release_branch-v1.57.8-stable
-    configs:
-      - source: litellm_config
-        target: /app/config.yaml
-    env_file: .env
-    ports:
-      - "127.0.0.1:8080:8080"
-    environment:
-        DATABASE_URL: "postgresql://litellm_user:litellm_password11@litellm-db:5432/litellm"
-
-    # note: litellm recommends 1 worker for kubernetes: https://docs.litellm.ai/docs/proxy/prod
-    command: ["--config", "/app/config.yaml", "--port", "8080", "--num_workers", "8"]
-    depends_on:
-      litellm-db:
-        condition: service_healthy
-
-  litellm-db:
-    image: postgres:17.2
-    restart: always
-    environment:
-      POSTGRES_DB: litellm
-      POSTGRES_USER: litellm_user
-      POSTGRES_PASSWORD: litellm_password11
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-
   buttercup-ui:
     build:
       context: ../../
@@ -316,9 +284,7 @@ services:
     env_file: env.dev.compose
 
 
-configs:
-  litellm_config:
-    file: ../../litellm/litellm_config.yaml
+
 
 volumes:
   cache:

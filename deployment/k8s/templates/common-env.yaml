@@ -41,7 +41,7 @@ unix://{{ include "buttercup.core.dockerSocketPath" . }}
 {{- end -}}
 
 {{- define "buttercup.core.litellmEndpoint" -}}
-http://{{ .Release.Name }}-litellm:4000
+{{ .Values.litellm.endpoint }}
 {{- end -}}
 
 {{/*
@@ -397,5 +397,3 @@ Service-specific environment variables that utilize the standardized variables
       name: ghcr
       key: username
 {{- end }}
-
-

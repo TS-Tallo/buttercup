@@ -12,9 +12,7 @@ errored.tfstate
 ## Generated Kubernetes Resources
 .k8s
 deployment/k8s/values-*.yaml
-deployment/k8s/base/tailscale-coredns/coredns-custom.yaml
-deployment/k8s/base/tailscale-operator/operator.yaml
-deployment/k8s/base/tailscale-connections/proxies.yaml
+
 
 ## Python
 __pycache__/

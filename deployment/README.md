@@ -23,7 +23,7 @@ The standard `azure` networking profile is used.
 - `gettext` package
 - An active Azure subscription.
 - An account in Azure Entra ID.
-- Access credentials to the competition Tailscale tailnet.
+
 - Minikube installed, if you want to test the full CRS locally (linux/amd64 system recommended).
 
 ### Azure
@@ -184,13 +184,13 @@ The deployment of the AKS cluster and its resources are performed by the `Makefi
 - `az aks get-credentials --name <your-cluster-name> --resource-group <your-resource-group>` - retrieves access credentials and updates kubeconfig for the current cluster
 - `kubectl get namespaces` - lists all namespaces
 - `kubectl get -n crs-webservice all` - lists all resources within the crs-webservice namespace
-- `kubectl get -n tailscale all` - lists all resources within the tailscale namespace
+
 - `kubectl get pods -A` - lists all pods in all namespaces
 - `kubectl config get-contexts` - lists the current contexts in your kubeconfig
 - `kubectl describe deployment -n crs-webservice crs-webapp` - print detailed information about the deployment, crs-webapp
 - `kubectl logs <podName>` - retrieves the stdout and stderr streams from the containers within the specified pod
 - `kubectl get svc -A` - lists status of all services
-- `kubectl get -n crs-webservice ingress` - lists the tailscale ingress address of your API
+- `kubectl get -n crs-webservice ingress` - lists the ingress address of your API
 - `kubectl port-forward -n crs service/buttercup-competition-api 31323:1323` - make competition-api service available locally at port 31323
 
 ## State
